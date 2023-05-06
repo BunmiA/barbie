@@ -2,9 +2,9 @@
 let myVid;
 let threshold = 150;
 let back_ground_pixels;
-let currentString =  'This barbie is a'
+let currentString ;
 
-let string = 'This Barbie is a baddie';
+// let string = 'This Barbie is a baddie';
 let currentCharacter = 0;
 let pageMargin = 25;
 let j = 0;
@@ -15,11 +15,33 @@ let chunks = [];
 
 const fr = 30;
 
-let bodypix;
+let backgroundModel;
 let video;
 let segmentation;
 let backgroundImage;
 let logoImage;
+let startPageBackgroundImage;
+let endPageBackgroundImage;
+
+
+let barbie_page= false;
+let cur_page = 0;
+
+let startButton;
+let nameInput;
+let name;
+let descriptionInput;
+let description;
+
+let nameY = 600
+let nameX = 280
+let descriptionY = 640
+let buttonY = 680
+let timer = 60;
+
+let lightPink = '#FCEDF5';
+let brightPink = '#DF2B9F'
+
 
 const options = {
     architecture: 'ResNet50', //'MobileNetV1'
@@ -28,69 +50,189 @@ const options = {
 }
 
 function preload() {
-    bodypix = ml5.bodyPix(options);
+    backgroundModel = ml5.uNet('face'); // ml5.bodyPix(options);
     backgroundImage = loadImage('img/template.jpg');
-    logoImage = loadImage('img/symbol-barbie-names-png-logo-10.png');
+    logoImage = loadImage('img/barbie_logo_updated.png');
+    startPageBackgroundImage = loadImage('img/bg-index.jpg');
+    endPageBackgroundImage = loadImage('img/bg-default.jpg');
+    mainLogoImage = loadImage('img/logo-barbie.png');
+
 }
 
 
 function setup() {
+    rectMode(CENTER);
     // canvas is same resolution as webcam
     createCanvas(640, 800);
+    startPage();
 
     // initialize recorder
-    record();
+    // record();
 
-    // make the webcam
-    video = createCapture(VIDEO,videoReady);
-    video.size(width, height/2);
-    video.hide(); // hide it
+    // todo un comment when running offline make the webcam
+    // video = createCapture(VIDEO,videoReady);
+    // video.size(width, height/2);
+    // video.hide(); // hide it
 
+    // Start with a blank image
+    // let segmentation = createImage(width, height);
+
+    // initial segmentation
+    // uNet.segment(video, gotResults);
 
 }
 
 function videoReady() {
-    bodypix.segment(video, gotResults);
+     backgroundModel.segment(video, gotResults);
 }
 
+function startPage(){
+    nameInput = createInput('');
+    nameInput.position(nameX, nameY);
+    nameInput.style('font-size', '20px', 'color', '#ffffff');
+
+    descriptionInput = createInput('');
+    descriptionInput.position(nameX, descriptionY);
+    descriptionInput.style('font-size', '20px', 'color', '#ffffff');
+
+
+    startButton = createButton("Begin");
+    startButton.position(nameX-100, buttonY+10);
+
+    startButton.mousePressed(goToBarbiePage);
+    startButton.style('background-color', brightPink);
+    startButton.style('border', 'none');
+    startButton.style('color', 'white');
+    startButton.style('padding', '10px');
+    startButton.style('text-align', 'center');
+    startButton.style('font-weight', 'bold');
+    startButton.style('text-decoration','none');
+    startButton.style('display', 'inline-block');
+    startButton.style('font-size', '16px');
+    startButton.style('margin', '6px 2px');
+    startButton.style('cursor', 'pointer');
+    startButton.style('border-radius', '20px');
+    startButton.style('width', '260px');
+    noStroke();
+    text("Enter your name.", 20, 20);
+    // var name = nameInput.value();
+}
+
+function nameInputEvent() {
+    console.log('you are typing: ', this.value());
+}
+
+function goToBarbiePage(){
+    console.log('going to barbie page');
+    cur_page = 1;
+    name = nameInput.value();
+    description = 'This barbie is a ' + descriptionInput.value();
+
+    // video = createCapture(VIDEO);
+    // video.size(width, height/2);
+}
+
+function endPage(){
+
+}
+
+
 function draw() {
-    let currentString = string.substring(0, currentCharacter);
-    background(255);
+    if(cur_page ==0){
+        // start page elements
+        image(startPageBackgroundImage, 0, 0, width*2, height);
+        image(mainLogoImage, 150, 60, 320, 140);
+        fill(lightPink);
+        ellipse(320, 600, 600, 600);
 
-    image(backgroundImage,0,0,width,height);
+        fill(brightPink);
+        textSize(20);
+        textFont(`sans-serif`);
+        text('This is an experimental project based on the official' +
+            ' barbie movie selfie generator (www.barbieselfie.ai) \n \n ' +
+            'Enter your name and kind of barbie you are and make your GIF! ', nameX+30, nameY -100 , 400, 200);
 
+        text('Enter your name', nameX-200, nameY +20);
+        text('This barbie is a ....', nameX-200, descriptionY+20);
 
-    if (segmentation) {
-        image(segmentation.backgroundMask, 0, 0, width, height);
+        fill(lightPink);
+        for (var angle= 0; angle<(2*PI); angle+=(PI/18) ){
+            var x = 320 * sin(angle) + 320;
+            var y = 320 * cos(angle) + 600;
+            //ellipse(x, y, 60, 60);
+            push();
+            translate(x, y);
+            rotate(PI-angle);
+            //triangle(x-(2*30), y+30, x, y-(2*30), x+(2*30), y+30);
+            triangle(-(2*30), 30, 0, -(2*30), (2*30), 30);
+            pop();
+        }
     }
 
-    image(logoImage,width/3,height/2,width/3,height/3);
+    if (cur_page == 1){
+        nameInput.hide();
+        startButton.hide();
+        descriptionInput.hide();
+
+        text(timer, 30, 30);
+        if (frameCount % 60 == 0 && timer > 0) { // if the frameCount is divisible by 60, then a second has passed. it will stop at 0
+            timer --;
+        }
+
+        let currentString = description.substring(0, currentCharacter);
+
+        background(255);
+        // barbie background photo
+        image(backgroundImage, 0, 0, width, height);
+        // using ML to segment image
+        if (segmentation) {
+            image(segmentation.backgroundMask, 0, 0, width, height);
+        }
+        // adding barbie logo
+        image(logoImage, 80, 350, 500,240);
+        // Don't forget this!
+        // updatePixels();
+
+        // adding text for the name
+        push();
+        textSize(20);
+        textFont(`Courier`);
+        fill('white');
+        textAlign(LEFT, TOP);
+        text(name, width/2, 10);
+        pop();
 
 
-    // Don't forget this!
-    // updatePixels();
-
-
-    // Draw the current string on the page, with some margins
-    push();
-    textSize(12);
-    textFont(`Courier`);
-    textAlign(LEFT, TOP);
-    text(currentString, pageMargin + 10, pageMargin + 10, width - pageMargin*2, height - pageMargin);
-    pop();
-
-    currentCharacter += 0.1;
+        // adding text for the barbie description
+        push();
+        textSize(12);
+        textFont(`Courier`);
+        fill('white');
+        textAlign(LEFT, TOP);
+        text(currentString, pageMargin + 10, pageMargin + 10, width - pageMargin * 2, height - pageMargin);
+        pop();
+        currentCharacter += 0.1;
+    }
 }
 
 
 
 function gotResults(error, result) {
+    // if there's an error return it
     if (error) {
         console.log(error);
         return;
     }
+    // set the result to the global segmentation variable
     segmentation = result;
-    bodypix.segment(video, gotResults);
+
+    // Continue asking for a segmentation image
+    backgroundModel.segment(video, gotResults);
+
+    //bodypix code
+    // segmentation = result;
+    // bodypix.segment(video, gotResult);
+
 }
 
 
@@ -155,5 +297,10 @@ function keyPressed() {
         console.log("recording stopped!");
         recorder.stop();
     }
+
+    // this will download the first 5 seconds of the animation!
+    // if (key === 's') {
+    //     saveGif('mySketch', 5);
+    // }
 
 }
