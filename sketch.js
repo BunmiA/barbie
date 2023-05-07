@@ -22,6 +22,8 @@ let backgroundImage;
 let logoImage;
 let startPageBackgroundImage;
 let endPageBackgroundImage;
+let mainLogoImage;
+let endBackgroundImage;
 
 
 let barbie_page= false;
@@ -29,15 +31,15 @@ let cur_page = 0;
 
 let startButton;
 let nameInput;
-let name;
+let name = 'Bunmi';
 let descriptionInput;
-let description;
+let description = 'This barbie is a baddie ';
 
 let nameY = 600
 let nameX = 280
 let descriptionY = 640
 let buttonY = 680
-let timer = 60;
+let timer = 10;
 
 let lightPink = '#FCEDF5';
 let brightPink = '#DF2B9F'
@@ -56,23 +58,23 @@ function preload() {
     startPageBackgroundImage = loadImage('img/bg-index.jpg');
     endPageBackgroundImage = loadImage('img/bg-default.jpg');
     mainLogoImage = loadImage('img/logo-barbie.png');
-
+    endBackgroundImage = loadImage('img/bg-default.jpg');
 }
 
 
 function setup() {
-    rectMode(CENTER);
+    // rectMode(CENTER);
     // canvas is same resolution as webcam
     createCanvas(640, 800);
     startPage();
 
     // initialize recorder
-    // record();
+    record();
 
     // todo un comment when running offline make the webcam
-    // video = createCapture(VIDEO,videoReady);
-    // video.size(width, height/2);
-    // video.hide(); // hide it
+    video = createCapture(VIDEO,videoReady);
+    video.size(width, height/2);
+    video.hide(); // hide it
 
     // Start with a blank image
     // let segmentation = createImage(width, height);
@@ -127,6 +129,8 @@ function goToBarbiePage(){
     cur_page = 1;
     name = nameInput.value();
     description = 'This barbie is a ' + descriptionInput.value();
+    setTimeout(() => {  }, 1000);
+    recorder.start()
 
     // video = createCapture(VIDEO);
     // video.size(width, height/2);
@@ -150,12 +154,13 @@ function draw() {
         textFont(`sans-serif`);
         text('This is an experimental project based on the official' +
             ' barbie movie selfie generator (www.barbieselfie.ai) \n \n ' +
-            'Enter your name and kind of barbie you are and make your GIF! ', nameX+30, nameY -100 , 400, 200);
+            'Enter your name and kind of barbie you are and make your GIF! ', nameX-160, nameY -200 , 400, 200);
 
         text('Enter your name', nameX-200, nameY +20);
         text('This barbie is a ....', nameX-200, descriptionY+20);
 
         fill(lightPink);
+        // triangles around circles
         for (var angle= 0; angle<(2*PI); angle+=(PI/18) ){
             var x = 320 * sin(angle) + 320;
             var y = 320 * cos(angle) + 600;
@@ -170,13 +175,19 @@ function draw() {
     }
 
     if (cur_page == 1){
+        // recorder.start();
         nameInput.hide();
         startButton.hide();
         descriptionInput.hide();
 
-        text(timer, 30, 30);
         if (frameCount % 60 == 0 && timer > 0) { // if the frameCount is divisible by 60, then a second has passed. it will stop at 0
             timer --;
+        }
+
+        if(timer == 0){
+            recorder.stop();
+            cur_page = 2;
+            video.remove();
         }
 
         let currentString = description.substring(0, currentCharacter);
@@ -189,32 +200,52 @@ function draw() {
             image(segmentation.backgroundMask, 0, 0, width, height);
         }
         // adding barbie logo
-        image(logoImage, 80, 350, 500,240);
+        image(logoImage, 80, 420, 500,240);
         // Don't forget this!
         // updatePixels();
 
         // adding text for the name
         push();
-        textSize(20);
-        textFont(`Courier`);
+        textSize(30);
+        textFont(`sans-serif`);
         fill('white');
         textAlign(LEFT, TOP);
-        text(name, width/2, 10);
+        text(name, width/2 - (name.length * 10), 20);
         pop();
 
+        text(timer, width-50, 30);
 
         // adding text for the barbie description
         push();
-        textSize(12);
-        textFont(`Courier`);
+        textSize(20);
+        textFont(`sans-serif`);
         fill('white');
         textAlign(LEFT, TOP);
-        text(currentString, pageMargin + 10, pageMargin + 10, width - pageMargin * 2, height - pageMargin);
+        text(currentString, pageMargin , pageMargin+50 , pageMargin + 100, 300);
+        // text(currentString, pageMargin + 10, pageMargin + 10, width - pageMargin * 2, height - pageMargin);
         pop();
         currentCharacter += 0.1;
     }
-}
 
+    if (cur_page == 2){
+        recorder.stop();
+
+        nameInput.hide();
+        startButton.hide();
+        descriptionInput.hide();
+
+        image(endBackgroundImage, 0, 0, width, height);
+        image(mainLogoImage, 150, 60, 320, 140);
+        fill(brightPink);
+        textSize(16);
+        text('You are all done! your video has been downloaded :) \n \n', nameX-100, nameY -300);
+        a = createA('http://bunmisram.squarespace.com/', 'Made by @bunmisram');
+        a.position(nameX-100, nameY -260);
+        a.style('color', '#DF2B9F');
+        a.style('font', 'sans-serif');
+        a.style('font-size', '16px');
+    }
+}
 
 
 function gotResults(error, result) {
@@ -228,11 +259,6 @@ function gotResults(error, result) {
 
     // Continue asking for a segmentation image
     backgroundModel.segment(video, gotResults);
-
-    //bodypix code
-    // segmentation = result;
-    // bodypix.segment(video, gotResult);
-
 }
 
 
@@ -278,29 +304,28 @@ function exportVideo(e) {
 }
 
 
-function keyPressed() {
-
-    // toggle recording true or false
-    recording = !recording
-    console.log(recording);
-
-    // 82 is keyCode for r
-    // if recording now true, start recording
-    if (keyCode === 82 && recording ) {
-
-        console.log("recording started!");
-        recorder.start();
-    }
-
-    // if we are recording, stop recording
-    if (keyCode === 82 && !recording) {
-        console.log("recording stopped!");
-        recorder.stop();
-    }
-
-    // this will download the first 5 seconds of the animation!
-    // if (key === 's') {
-    //     saveGif('mySketch', 5);
-    // }
-
-}
+// function keyPressed() {
+//
+//     // toggle recording true or false
+//     recording = !recording
+//     console.log(recording);
+//
+//     // 82 is keyCode for r
+//     // if recording now true, start recording
+//     if (keyCode === 82 && recording ) {
+//         console.log("recording started!");
+//         recorder.start();
+//     }
+//
+//     // if we are recording, stop recording
+//     if (keyCode === 82 && !recording) {
+//         console.log("recording stopped!");
+//         recorder.stop();
+//     }
+//
+//     //this will download the first 5 seconds of the animation!
+//     if (key === 's') {
+//         saveGif('mySketch', 5);
+//     }
+//
+// }
