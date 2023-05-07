@@ -101,6 +101,7 @@ I decided to go with a gif format as it was the easiest to convert and the forma
 
 ## Assets
 I also explored making my own barbie assets using adobe tools and found this [tutorial](https://www.youtube.com/watch?v=oMGhyVoi4Fg&t=705s&ab_channel=Nucly%E2%80%A2PhotoshopandCreativeDesignTraining)
+But found it was possible to retrive some assets from the barbie selfie generator site
 
 # Running Project
 set up python server
@@ -113,4 +114,4 @@ If task is not killed properly
 
 ## Things to improve
 - Turning off the webcam before and after the gif is recorded, the video capture still runs behind the scences
-- 
+- I also need to add smoothing to the segmentation

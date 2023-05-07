@@ -28,7 +28,7 @@ let lowerBackgroundImage;
 
 
 let barbie_page= false;
-let cur_page = 1;
+let cur_page = 0;
 
 let startButton;
 let nameInput;
@@ -40,7 +40,7 @@ let nameY = 600
 let nameX = 280
 let descriptionY = 640
 let buttonY = 680
-let timer = 30;
+let timer = 6;
 let downloadTimer = 6;
 
 let lightPink = '#FCEDF5';
@@ -278,9 +278,7 @@ function record() {
             chunks.push(e.data);
         }
     };
-
     recorder.onstop = exportVideo;
-
 }
 
 function exportVideo(e) {
