@@ -140,6 +140,7 @@ function draw() {
         fill(lightPink);
         ellipse(320, 600, 600, 600);
 
+
         fill(brightPink);
         textSize(20);
         textFont(`sans-serif`);
@@ -151,18 +152,30 @@ function draw() {
         text('Enter your name', nameX-200, nameY +20);
         text('This barbie is ....', nameX-200, descriptionY+20);
 
+
+
         fill(lightPink);
         // triangles around circles
-        for (var angle= 0; angle<(2*PI); angle+=(PI/18) ){
+        for (var angle= 0; angle<(2*PI); angle+=(PI/18) ) {
             var x = 320 * sin(angle) + 320;
             var y = 320 * cos(angle) + 600;
             //ellipse(x, y, 60, 60);
             push();
             translate(x, y);
-            rotate(PI-angle);
-            triangle(-(2*30), 30, 0, -(2*30), (2*30), 30);
+            rotate(PI - angle);
+            triangle(-(2 * 30), 30, 0, -(2 * 30), (2 * 30), 30);
             pop();
         }
+
+        push();
+        textSize(50);
+        fill('#F7CCE5');
+        stroke(brightPink);
+        strokeWeight(6);
+        textFont(`sans-serif`);
+        text('GIF', nameX+20, nameY -270);
+        text('Generator', nameX-50, nameY -240);
+        pop();
     }
 
     if (cur_page == 1){
