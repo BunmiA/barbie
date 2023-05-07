@@ -39,7 +39,8 @@ let nameY = 600
 let nameX = 280
 let descriptionY = 640
 let buttonY = 680
-let timer = 10;
+let timer = 6;
+let downloadTimer = 6;
 
 let lightPink = '#FCEDF5';
 let brightPink = '#DF2B9F'
@@ -76,12 +77,6 @@ function setup() {
     video.size(width, height/2);
     video.hide(); // hide it
 
-    // Start with a blank image
-    // let segmentation = createImage(width, height);
-
-    // initial segmentation
-    // uNet.segment(video, gotResults);
-
 }
 
 function videoReady() {
@@ -117,7 +112,6 @@ function startPage(){
     startButton.style('width', '260px');
     noStroke();
     text("Enter your name.", 20, 20);
-    // var name = nameInput.value();
 }
 
 function nameInputEvent() {
@@ -128,12 +122,9 @@ function goToBarbiePage(){
     console.log('going to barbie page');
     cur_page = 1;
     name = nameInput.value();
-    description = 'This barbie is a ' + descriptionInput.value();
+    description = 'This barbie is ' + descriptionInput.value();
     setTimeout(() => {  }, 1000);
-    recorder.start()
-
-    // video = createCapture(VIDEO);
-    // video.size(width, height/2);
+    saveGif('barbie_gif', 5);
 }
 
 function endPage(){
@@ -153,11 +144,12 @@ function draw() {
         textSize(20);
         textFont(`sans-serif`);
         text('This is an experimental project based on the official' +
-            ' barbie movie selfie generator (www.barbieselfie.ai) \n \n ' +
-            'Enter your name and kind of barbie you are and make your GIF! ', nameX-160, nameY -200 , 400, 200);
+            ' barbie movie selfie generator (www.barbieselfie.ai)  \n ' +
+            'Enter your name and kind of barbie you are \n' +
+            'Get ready to make your GIF! ', nameX-160, nameY -200 , 400, 200);
 
         text('Enter your name', nameX-200, nameY +20);
-        text('This barbie is a ....', nameX-200, descriptionY+20);
+        text('This barbie is ....', nameX-200, descriptionY+20);
 
         fill(lightPink);
         // triangles around circles
@@ -168,7 +160,6 @@ function draw() {
             push();
             translate(x, y);
             rotate(PI-angle);
-            //triangle(x-(2*30), y+30, x, y-(2*30), x+(2*30), y+30);
             triangle(-(2*30), 30, 0, -(2*30), (2*30), 30);
             pop();
         }
@@ -183,11 +174,11 @@ function draw() {
         if (frameCount % 60 == 0 && timer > 0) { // if the frameCount is divisible by 60, then a second has passed. it will stop at 0
             timer --;
         }
-
         if(timer == 0){
-            recorder.stop();
+            // recorder.stop();
             cur_page = 2;
-            video.remove();
+            // video.stop();
+            // video.remove();
         }
 
         let currentString = description.substring(0, currentCharacter);
@@ -228,8 +219,7 @@ function draw() {
     }
 
     if (cur_page == 2){
-        recorder.stop();
-
+        // recorder.stop();
         nameInput.hide();
         startButton.hide();
         descriptionInput.hide();
@@ -238,9 +228,13 @@ function draw() {
         image(mainLogoImage, 150, 60, 320, 140);
         fill(brightPink);
         textSize(16);
-        text('You are all done! your video has been downloaded :) \n \n', nameX-100, nameY -300);
+
+        if (frameCount % 60 == 0 && downloadTimer > 0) { // if the frameCount is divisible by 60, then a second has passed. it will stop at 0
+            downloadTimer --;
+        }
+        text('You are all done! your video will be downloaded :) in ' + downloadTimer + ' seconds \n \n', nameX-100, nameY -300, nameX+50, nameY -200);
         a = createA('http://bunmisram.squarespace.com/', 'Made by @bunmisram');
-        a.position(nameX-100, nameY -260);
+        a.position(nameX-100, nameY -240);
         a.style('color', '#DF2B9F');
         a.style('font', 'sans-serif');
         a.style('font-size', '16px');
@@ -262,15 +256,11 @@ function gotResults(error, result) {
 }
 
 
-
-
 function record() {
     chunks.length = 0;
 
     let stream = document.querySelector('canvas').captureStream(fr);
-
     recorder = new MediaRecorder(stream);
-
     recorder.ondataavailable = e => {
         if (e.data.size) {
             chunks.push(e.data);
@@ -300,32 +290,7 @@ function exportVideo(e) {
     a.download = 'newVid.webm';
     a.click();
     window.URL.revokeObjectURL(url);
-
 }
 
 
-// function keyPressed() {
-//
-//     // toggle recording true or false
-//     recording = !recording
-//     console.log(recording);
-//
-//     // 82 is keyCode for r
-//     // if recording now true, start recording
-//     if (keyCode === 82 && recording ) {
-//         console.log("recording started!");
-//         recorder.start();
-//     }
-//
-//     // if we are recording, stop recording
-//     if (keyCode === 82 && !recording) {
-//         console.log("recording stopped!");
-//         recorder.stop();
-//     }
-//
-//     //this will download the first 5 seconds of the animation!
-//     if (key === 's') {
-//         saveGif('mySketch', 5);
-//     }
-//
-// }
+
