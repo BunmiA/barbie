@@ -24,10 +24,11 @@ let startPageBackgroundImage;
 let endPageBackgroundImage;
 let mainLogoImage;
 let endBackgroundImage;
+let lowerBackgroundImage;
 
 
 let barbie_page= false;
-let cur_page = 0;
+let cur_page = 1;
 
 let startButton;
 let nameInput;
@@ -39,7 +40,7 @@ let nameY = 600
 let nameX = 280
 let descriptionY = 640
 let buttonY = 680
-let timer = 6;
+let timer = 30;
 let downloadTimer = 6;
 
 let lightPink = '#FCEDF5';
@@ -55,6 +56,7 @@ const options = {
 function preload() {
     backgroundModel = ml5.uNet('face'); // ml5.bodyPix(options);
     backgroundImage = loadImage('img/template.jpg');
+    lowerBackgroundImage = loadImage('img/template_inverse.png');
     logoImage = loadImage('img/barbie_logo_updated.png');
     startPageBackgroundImage = loadImage('img/bg-index.jpg');
     endPageBackgroundImage = loadImage('img/bg-default.jpg');
@@ -125,10 +127,6 @@ function goToBarbiePage(){
     description = 'This barbie is ' + descriptionInput.value();
     setTimeout(() => {  }, 1000);
     saveGif('barbie_gif', 5);
-}
-
-function endPage(){
-
 }
 
 
@@ -203,8 +201,9 @@ function draw() {
         if (segmentation) {
             image(segmentation.backgroundMask, 0, 0, width, height);
         }
+        image(lowerBackgroundImage, 0, 0, width, height);
         // adding barbie logo
-        image(logoImage, 80, 420, 500,240);
+        //image(logoImage, 80, 420, 500,240);
         // Don't forget this!
         // updatePixels();
 
